@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Web App</title>
+    <link rel="stylesheet"
+      href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css"
+      integrity="sha384-q94+BZtLrkL1/ohfjR8c6L+A6qzNH9R2hBLwyoAfu3i/WCvQjzL2RQJ3uNHDISdU"
+      crossorigin="anonymous">
+    <link rel="stylesheet" href="/game/styles.css">
+    <link rel="icon" href="../img/favicon/wK.png" type="image/x-icon">
+
+</head>
+<body>
+    <h1>Chess Web App</h1>
+    <div class="theme-switch">
+        <button id="lightTheme" class="theme-btn active">Light Theme</button>
+        <button id="darkTheme" class="theme-btn">Dark Theme</button>
+    </div>
+    <div id="myBoard" style="width: 700px"></div>
+    <div class="game-info">
+        <label>Status:</label>
+        <div id="status"></div>
+        <label>FEN:</label>
+        <div class="fen-container">
+            <div id="fen"></div>
+            <button id="copyFen" class="copy-btn">Copy FEN</button>
+        </div>
+        <label>PGN:</label>
+        <div class="pgn-container">
+            <div id="pgn"></div>
+            <button id="copyPgn" class="copy-btn">Copy PGN</button>
+        </div>
+        <p id="game-id">Game ID: <span id="game-id-value"></span></p>
+    </div>
+    <div class = "pieceSet"> 
+        <button onclick="changePieceSet('lichess')" class= pieceSet-btn id="lichess-btn">
+            <img src="../img/chesspieces/lichess/wK.png" alt="King" class="pieceSet-icon">
+        </button>
+        <button onclick="changePieceSet('chesscom')" class= pieceSet-btn id="chesscom-btn">
+            <img src="../img/chesspieces/chesscom/wK.png" alt="King" class="pieceSet-icon">
+        </button>
+        
+        </button>
+    </div> 
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" 
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" 
+        crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"
+        integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="/game/script.js"></script>
+
+    <!-- Promotion Modal -->
+    <div id="promote-modal" style="display: none;">
+        <h3>Promote to:</h3>
+        <div class="promotion-options">
+            <button onclick="selectPromotion('q')" class="promotion-btn" id="queen-btn">
+                <img src="../img/chesspieces/lichess/wQ.png" alt="Queen" class="promotion-icon">
+            </button>
+            <button onclick="selectPromotion('r')" class="promotion-btn" id="rook-btn">
+                <img src="../img/chesspieces/lichess/wR.png" alt="Rook" class="promotion-icon">
+            </button>
+            <button onclick="selectPromotion('b')" class="promotion-btn" id="bishop-btn">
+                <img src="../img/chesspieces/lichess/wB.png" alt="Bishop" class="promotion-icon">
+            </button>
+            <button onclick="selectPromotion('n')" class="promotion-btn" id="knight-btn">
+                <img src="../img/chesspieces/lichess/wN.png" alt="Night" class="promotion-icon">
+            </button>
+        </div>
+    </div>
+
+</body>
+</html>

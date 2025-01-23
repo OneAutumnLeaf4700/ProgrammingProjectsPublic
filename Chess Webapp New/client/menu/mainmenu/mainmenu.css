@@ -1,0 +1,141 @@
+:root {
+    --primary-dark: #333333;
+    --secondary-dark: #2B262B;
+    --accent-light: #D5CCC7;
+    --neutral-gray: #A9A29C;
+    --deep-dark: #000333;
+    --pure-white: #FFFFFF;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--pure-white);
+    font-family: 'Audiowide', cursive;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(
+        135deg,
+        var(--pure-white) 0%,
+        var(--accent-light) 100%
+    );
+}
+
+.menu-container {
+    text-align: center;
+    padding: 2rem;
+    max-width: 600px;
+    width: 90%;
+}
+
+h1 {
+    font-family: 'Lemon', cursive;
+    color: var(--deep-dark);
+    font-size: 3.2rem;
+    margin-bottom: 2.5rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.menu-btn {
+    background-color: var(--primary-dark);
+    color: var(--pure-white);
+    border: 2px solid var(--deep-dark);
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    font-family: 'Audiowide', cursive;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+}
+
+.menu-btn:hover {
+    background-color: var(--deep-dark);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.menu-btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.footer-text {
+    color: var(--neutral-gray);
+    font-size: 1rem;
+    margin-top: 2rem;
+    font-family: 'Audiowide', cursive;
+    letter-spacing: 0.5px;
+}
+
+/* Responsive Design */
+@media (min-width: 768px) {
+    .button-container {
+        flex-direction: row;
+        justify-content: center;
+        gap: 2rem;
+    }
+
+    .menu-btn {
+        min-width: 200px;
+    }
+
+    h1 {
+        font-size: 4rem;
+    }
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.menu-container {
+    animation: fadeIn 0.8s ease-out;
+}
+
+/* Focus States */
+.menu-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(213, 204, 199, 0.5);
+}
+
+/* Optional: Add hover effect to title */
+h1:hover {
+    transform: scale(1.02);
+    transition: transform 0.3s ease;
+}
+
+/* Optional: Add subtle pulsing animation to buttons */
+@keyframes subtle-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+.menu-btn:hover {
+    animation: subtle-pulse 1.5s infinite;
+}
