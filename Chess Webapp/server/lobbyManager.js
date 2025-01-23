@@ -76,7 +76,7 @@ async function joinGame(userId, gameId) {
 }
 
 // Helper function to get the team of a player
-async function getPlayerColor(userId, gameId) {
+async function getPlayerTeam(userId, gameId) {
   try {
     const game = await Game.findOne({ gameId });
     if (!game) {
@@ -84,8 +84,6 @@ async function getPlayerColor(userId, gameId) {
       return null;
     }
     const player = game.players.find(p => p.userId === userId.toString());
-    console.log('Player:', player);
-    console.log('Player color:', player ? player.color : null);
     return player ? player.color : null;
   } catch (error) {
     console.error(`Error fetching player color: ${error.message}`);
@@ -139,7 +137,6 @@ async function getGame(gameId) {
   }
 }
 
-
 // Handle disconnecting player
 async function handleDisconnect(userId) {
   return;
@@ -162,7 +159,7 @@ async function handleDisconnect(userId) {
 module.exports = {
   createMultiplayerGame,
   joinGame,
-  getPlayerColor,
+  getPlayerTeam,
   getCurrentTurn,
   updateGameState,
   getGame,

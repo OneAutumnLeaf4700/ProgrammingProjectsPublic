@@ -83,16 +83,14 @@ let game = new Chess();
 // Notify the server to start tracking board activity
 socket.emit('userConnected', userId, gameId);
 
-console.log(game);
-
 
 // -------------------------------
 // Socket Events
 // -------------------------------
 
-//Listen for color from the server
-socket.on('colorAssignment', (color) => {
-  colorAssignment(color);
+//Listen for team from the server
+socket.on('teamAssignment', (team) => {
+  teamAssignment(team);
 });
 
 // Listen for the turnAssignment event from the server
@@ -135,10 +133,10 @@ socket.on('opponentMove', (move) => {
 // Socket Functions
 // -------------------------------
 
-//Assign the user a color
-function colorAssignment(color) {
-  myColor = color;
-  config.orientation = color;
+//Assign the user a team
+function teamAssignment(team) {
+  myColor = team;
+  config.orientation = team;
   board = Chessboard('myBoard', config);
 }
 
@@ -149,8 +147,6 @@ function turnAssignment(currentTurn) {
     return;
   }
   isTurn = (myColor === 'white' && currentTurn === 'w') || (myColor === 'black' && currentTurn === 'b');
-  console.log(`UserId: ${userId}, MyColor: ${myColor}, Turn: ${currentTurn}`);
-  console.log('isTurn:', isTurn);
 }
 
 

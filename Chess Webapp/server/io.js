@@ -19,11 +19,16 @@ module.exports = (io) => {
         return gameId;
     };
 
-    // New function to handle player assignment and send turn assignment notification to user
-    async function assignPlayerColor(socket, userId, gameId) {
-        const color = await lobbyManager.getPlayerColor(userId, gameId);
-        console.log(`Assigning color ${color} to player ${userId}`);
-        socket.emit('colorAssignment', color);
+    // Update the player board
+    async function updatePlayerBoard(socket, gameId) {
+        const game = await lobbyManager.getGame(gameId);
+        socket.emit('updateBoard', game.gameState.fen);
+    }
+
+    // Handle player assignment and send turn assignment notification to user
+    async function getPlayerTeam(socket, userId, gameId) {
+        const team = await lobbyManager.getPlayerTeam(userId, gameId);
+        socket.emit('teamAssignment', team);
     }
     
     // New function to handle player assignment and turn notification
@@ -37,10 +42,16 @@ module.exports = (io) => {
         socket.emit('syncBoard', gameState);
     }
 
-    // Update the board
-    async function handleReconnect(socket, gameId) {
-        const game = await lobbyManager.getGame(gameId);
-        socket.emit('updateBoard', game.gameState.fen);
+    // Handle the connection (or Reconnection) of a new player 
+    async function handleConnection(socket, userId, gameId) {
+        //Update the board on the client side
+        updatePlayerBoard(socket, gameId);
+        
+        //Send the clients determined team to them
+        getPlayerTeam(socket, userId, gameId);
+        
+        //Send the current players turn back to the client
+        getCurrentTurn(socket, gameId);
     }
 
     // Make the move on the remaining client sides
@@ -59,7 +70,6 @@ module.exports = (io) => {
 
         //Update the turn on the client side
         getCurrentTurn(io, gameId);
-
     }
 
     // ---------------------------------
@@ -77,9 +87,7 @@ module.exports = (io) => {
         
         socket.on('userConnected', (userId, gameId) => {
             // Handle user reconnection (sync board, handle player assignment, etc.)
-            handleReconnect(socket, gameId);
-            assignPlayerColor(socket, userId, gameId);
-            getCurrentTurn(socket, gameId);
+            handleConnection(socket, userId, gameId);
         });
 
         // Creating a new multiplayer game
@@ -96,12 +104,8 @@ module.exports = (io) => {
         // Joining an existing multiplayer game
         socket.on('joinGameRequested', async (userId, gameId) => {
             try {
-              console.log(`joinGameRequested: userId=${userId}, gameId=${gameId}`);
-          
               // Call the joinGame function and await the result
               const joinedGameId = await lobbyManager.joinGame(userId, gameId);
-          
-              console.log('Game joined successfully:', joinedGameId);
           
               // Emit the joined game ID back to the client
               socket.emit('joinGameReplied', (joinedGameId));
