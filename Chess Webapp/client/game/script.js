@@ -39,6 +39,7 @@ let gameHasStarted = false;
 let $status = $('#status')
 let $fen = $('#fen')
 let $pgn = $('#pgn')
+let $gameId = $('#game-id')
 let gameOver = false;
 let whiteSquareGrey = '#a9a9a9'
 let blackSquareGrey = '#696969'
@@ -166,7 +167,7 @@ function syncBoard(serverGameState) {
 
   try {
     game.load(gameState.fen);
-    board.position(gameState.fen);
+    board.position(game.fen);
     
     // Dynamically update the content of FEN and Status divs
     document.getElementById('fen').innerText = gameState.fen || ''; // Placeholder text
@@ -369,7 +370,7 @@ async function onDrop(source, target) {
   // Update the website labels
   updateStatus();
 
-  // Otherwise, send the move to the server
+  // Check outcome of the game
   outcome = checkOutcome(game);
   gameStateObject = {
     turn: game.turn(),
@@ -379,6 +380,7 @@ async function onDrop(source, target) {
     move: move
   };
   
+  // Otherwise, send the move to the server
   sendMoveToServer(gameId, gameStateObject);
 }
 
@@ -419,6 +421,7 @@ function updateStatus () {
   $status.html(status) // Update the status label
   $fen.html(game.fen()) // Update the FEN label
   $pgn.html(game.pgn()) // Update the PGN label
+  $gameId.html(gameId) // Update the game ID label
 }
 
 
@@ -564,7 +567,20 @@ document.getElementById('lightTheme').addEventListener('click', () => {
         console.error('Failed to copy PGN:', err);
     });
   });
-  
+
+  // Game ID Copy Functionality
+  document.getElementById('copyGameId').addEventListener('click', () => {
+    const gameId = document.getElementById('game-id').innerText;
+    navigator.clipboard.writeText(gameId).then(() => {
+        const btn = document.getElementById('copyGameId');
+        btn.textContent = 'Copied!';
+        setTimeout(() => {
+            btn.textContent = 'Copy Game ID';
+        }, 2000);
+    }).catch(err => {
+      console.error('Failed to copy Game ID:', err);
+    });
+  });
   
   // Change piece set to Lichess
   document.getElementById('lichess-btn').addEventListener('click', () => {
