@@ -8,7 +8,7 @@ const socket = io();
 //Get Game ID
 const path = window.location.pathname;
 const gameId = path.split('/')[2];
-const gameIdValue = document.getElementById('game-id-value');
+const gameIdValue = document.getElementById('game-id');
 
 // Get user ID
 const userId = localStorage.getItem('userId');

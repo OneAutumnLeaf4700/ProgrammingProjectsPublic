@@ -28,6 +28,8 @@ ioHandler(io);
 // Serve static files
 app.use(express.static(path.join(__dirname, '../client')));
 
+console.log("Main Directory: " + __dirname);
+
 // Import routes
 routes(app);
 
