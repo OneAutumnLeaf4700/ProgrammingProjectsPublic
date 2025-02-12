@@ -44,6 +44,11 @@ let gameOver = false;
 let whiteSquareGrey = '#a9a9a9'
 let blackSquareGrey = '#696969'
 
+const icons = {
+  light: '../img/copyicon/copy-icon-light.png',
+  dark: '../img/copyicon/copy-icon-dark.png'
+};
+
 
 // Board settings
 let config = {
@@ -517,153 +522,177 @@ document.getElementById('lightTheme').addEventListener('click', () => {
     updateActiveThemeButton('lightTheme');
     localStorage.setItem('theme', 'light');
   });
-  
-  document.getElementById('darkTheme').addEventListener('click', () => {
-    document.body.setAttribute('data-theme', 'dark');
-    updateActiveThemeButton('darkTheme');
-    localStorage.setItem('theme', 'dark');
-  });
-  
-  function updateActiveThemeButton(activeId) {
-    document.querySelectorAll('.theme-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    document.getElementById(activeId).classList.add('active');
-  }
-  
-  // Load saved theme preference
-  function loadTheme() {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-        document.body.setAttribute('data-theme', 'dark');
-        updateActiveThemeButton('darkTheme');
-    }
-  }
-  
-  // FEN copy functionality
-  document.getElementById('copyFen').addEventListener('click', () => {
-    const fen = game.fen();
-    navigator.clipboard.writeText(fen).then(() => {
-        const btn = document.getElementById('copyFen');
-        btn.textContent = 'Copied!';
-        setTimeout(() => {
-            btn.textContent = 'Copy FEN';
-        }, 2000);
-    }).catch(err => {
-        console.error('Failed to copy FEN:', err);
-    });
-  });
-  
-  // PGN copy functionality
-  document.getElementById('copyPgn').addEventListener('click', () => {
-    const pgn = document.getElementById('pgn').innerText;
-    navigator.clipboard.writeText(pgn).then(() => {
-        const btn = document.getElementById('copyPgn');
-        btn.textContent = 'Copied!';
-        setTimeout(() => {
-            btn.textContent = 'Copy PGN';
-        }, 2000);
-    }).catch(err => {
-        console.error('Failed to copy PGN:', err);
-    });
-  });
 
-  // Game ID Copy Functionality
-  document.getElementById('copyGameId').addEventListener('click', () => {
-    const gameId = document.getElementById('game-id').innerText;
-    navigator.clipboard.writeText(gameId).then(() => {
-        const btn = document.getElementById('copyGameId');
-        btn.textContent = 'Copied!';
-        setTimeout(() => {
-            btn.textContent = 'Copy Game ID';
-        }, 2000);
-    }).catch(err => {
-      console.error('Failed to copy Game ID:', err);
-    });
+document.getElementById('darkTheme').addEventListener('click', () => {
+  document.body.setAttribute('data-theme', 'dark');
+  updateActiveThemeButton('darkTheme');
+  localStorage.setItem('theme', 'dark');
+});
+
+// Update copy button image based on the theme
+function updateCopyButtonImage(theme) {
+  const copyButtons = document.querySelectorAll('.copy-btn img');
+  const icon = theme === 'dark' ? icons.dark : icons.light;
+
+  copyButtons.forEach(button => {
+    button.src = icon;
   });
-  
-  // Change piece set to Lichess
-  document.getElementById('lichess-btn').addEventListener('click', () => {
-    changePieceSet('lichess');
+}
+
+// Call updateCopyButtonImage when the theme changes
+document.getElementById('lightTheme').addEventListener('click', () => {
+  updateCopyButtonImage('light');
+});
+
+document.getElementById('darkTheme').addEventListener('click', () => {
+  updateCopyButtonImage('dark');
+});
+
+// Update the copy button image when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+  const savedTheme = localStorage.getItem('theme');
+  updateCopyButtonImage(savedTheme === 'dark' ? 'dark' : 'light');
+});
+function updateActiveThemeButton(activeId) {
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+      btn.classList.remove('active');
   });
-  
-  // Change piece set to Chess.com
-  document.getElementById('chesscom-btn').addEventListener('click', () => {
-    changePieceSet('chesscom');
+  document.getElementById(activeId).classList.add('active');
+}
+
+// Load saved theme preference
+function loadTheme() {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+      document.body.setAttribute('data-theme', 'dark');
+      updateActiveThemeButton('darkTheme');
+  }
+}
+
+// FEN copy functionality
+document.getElementById('copyFen').addEventListener('click', () => {
+  const fen = game.fen();
+  navigator.clipboard.writeText(fen).then(() => {
+      const btn = document.getElementById('copyFen');
+      btn.textContent = 'Copied!';
+      setTimeout(() => {
+          btn.textContent = 'Copy FEN';
+      }, 2000);
+  }).catch(err => {
+      console.error('Failed to copy FEN:', err);
   });
-  
-  // Function to open the promotion modal and return the selected piece
-  function openPromotionModal() {
-    return new Promise((resolve, reject) => {
-      // Show the modal
-      document.getElementById('promote-modal').style.display = 'block';
-  
-      // Set the flag to true
-      isPromotionModalOpen = true;
-  
-      // Store the resolve and reject functions in global variables
-      window.promotionResolve = resolve;
-      window.promotionReject = reject;
-  
-      // Add event listener to close the modal if the user presses Escape
-      document.addEventListener('keydown', handleEscapeKey, { once: true });
-    });
+});
+
+// PGN copy functionality
+document.getElementById('copyPgn').addEventListener('click', () => {
+  const pgn = document.getElementById('pgn').innerText;
+  navigator.clipboard.writeText(pgn).then(() => {
+      const btn = document.getElementById('copyPgn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => {
+          btn.textContent = 'Copy PGN';
+      }, 2000);
+  }).catch(err => {
+      console.error('Failed to copy PGN:', err);
+  });
+});
+
+// Game ID Copy Functionality
+document.getElementById('copyGameId').addEventListener('click', () => {
+  const gameId = document.getElementById('game-id').innerText;
+  navigator.clipboard.writeText(gameId).then(() => {
+      const btn = document.getElementById('copyGameId');
+      btn.textContent = 'Copied!';
+      setTimeout(() => {
+          btn.textContent = 'Copy Game ID';
+      }, 2000);
+  }).catch(err => {
+    console.error('Failed to copy Game ID:', err);
+  });
+});
+
+// Change piece set to Lichess
+document.getElementById('lichess-btn').addEventListener('click', () => {
+  changePieceSet('lichess');
+});
+
+// Change piece set to Chess.com
+document.getElementById('chesscom-btn').addEventListener('click', () => {
+  changePieceSet('chesscom');
+});
+
+// Function to open the promotion modal and return the selected piece
+function openPromotionModal() {
+  return new Promise((resolve, reject) => {
+    // Show the modal
+    document.getElementById('promote-modal').style.display = 'block';
+
+    // Set the flag to true
+    isPromotionModalOpen = true;
+
+    // Store the resolve and reject functions in global variables
+    window.promotionResolve = resolve;
+    window.promotionReject = reject;
+
+    // Add event listener to close the modal if the user presses Escape
+    document.addEventListener('keydown', handleEscapeKey, { once: true });
+  });
+}
+
+// Function to handle pressing the Escape key
+function handleEscapeKey(event) {
+  // If the Escape key is pressed and no promotion piece has been selected, reject the promotion
+  if (event.key === 'Escape') {
+    closePromotionModal('cancel');
   }
-  
-  // Function to handle pressing the Escape key
-  function handleEscapeKey(event) {
-    // If the Escape key is pressed and no promotion piece has been selected, reject the promotion
-    if (event.key === 'Escape') {
-      closePromotionModal('cancel');
-    }
+}
+
+// Function to close the promotion modal
+function closePromotionModal(reason) {
+  // Close the modal
+  document.getElementById('promote-modal').style.display = 'none';
+
+  // Set the flag to false
+  isPromotionModalOpen = false; // Correctly set the flag to false
+
+  // Reject or resolve the promise if applicable
+  if (reason === 'cancel' && typeof window.promotionReject === 'function') {
+    window.promotionReject(reason);
+    window.promotionReject = null; // Clear the reject function after use
   }
-  
-  // Function to close the promotion modal
-  function closePromotionModal(reason) {
-    // Close the modal
-    document.getElementById('promote-modal').style.display = 'none';
-  
-    // Set the flag to false
-    isPromotionModalOpen = false; // Correctly set the flag to false
-  
-    // Reject or resolve the promise if applicable
-    if (reason === 'cancel' && typeof window.promotionReject === 'function') {
-      window.promotionReject(reason);
-      window.promotionReject = null; // Clear the reject function after use
-    }
-  
-    // Remove event listeners to avoid memory leaks
-    document.removeEventListener('keydown', handleEscapeKey);
+
+  // Remove event listeners to avoid memory leaks
+  document.removeEventListener('keydown', handleEscapeKey);
+}
+
+// Function to handle the promotion choice (user clicks a button)
+function selectPromotion(piece) {
+  // Close the modal
+  document.getElementById('promote-modal').style.display = 'none';
+
+  // Set the flag to false
+  isPromotionModalOpen = false; // Correctly set the flag to false
+
+  // Resolve the promise with the selected promotion piece (q, r, b, n)
+  if (typeof window.promotionResolve === 'function') {
+    window.promotionResolve(piece);
+    window.promotionResolve = null; // Clear the resolve function after use
   }
-  
-  // Function to handle the promotion choice (user clicks a button)
-  function selectPromotion(piece) {
-    // Close the modal
-    document.getElementById('promote-modal').style.display = 'none';
-  
-    // Set the flag to false
-    isPromotionModalOpen = false; // Correctly set the flag to false
-  
-    // Resolve the promise with the selected promotion piece (q, r, b, n)
-    if (typeof window.promotionResolve === 'function') {
-      window.promotionResolve(piece);
-      window.promotionResolve = null; // Clear the resolve function after use
-    }
-  
-    // Remove event listeners to avoid memory leaks
-    document.removeEventListener('keydown', handleEscapeKey);
-  }
-  
-  // Update promotion modal with new piece set
-  function updatePromotionModal(set) {
-    const promotionButtons = document.querySelectorAll('.promotion-btn');
-    const isWhite = config.orientation === 'white';
-  
-    // Update the image source based on the orientation (white or black)
-    promotionButtons.forEach(button => {
-      const pieceType = button.querySelector('img').alt.charAt(0);
-      const pieceColor = isWhite ? 'w' : 'b';
-      const newImageSrc = `../img/chesspieces/${set}/${pieceColor}${pieceType}.png`; // Adjust this to match your image naming convention
-      button.querySelector('img').src = newImageSrc;
-    });
-  };
+
+  // Remove event listeners to avoid memory leaks
+  document.removeEventListener('keydown', handleEscapeKey);
+}
+
+// Update promotion modal with new piece set
+function updatePromotionModal(set) {
+  const promotionButtons = document.querySelectorAll('.promotion-btn');
+  const isWhite = config.orientation === 'white';
+
+  // Update the image source based on the orientation (white or black)
+  promotionButtons.forEach(button => {
+    const pieceType = button.querySelector('img').alt.charAt(0);
+    const pieceColor = isWhite ? 'w' : 'b';
+    const newImageSrc = `../img/chesspieces/${set}/${pieceColor}${pieceType}.png`; // Adjust this to match your image naming convention
+    button.querySelector('img').src = newImageSrc;
+  });
+};

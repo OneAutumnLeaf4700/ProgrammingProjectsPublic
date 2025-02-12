@@ -142,7 +142,7 @@ label {
 * Status, FEN, and PGN shared styles
 **************************************************************
 */
-
+/* Global styles for status, FEN, PGN, and game-id containers */
 #status, #fen, #pgn, #game-id {
     font-family: 'Monaco', 'Courier New', monospace;
     padding: 1rem;
@@ -152,82 +152,137 @@ label {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     width: 100%;
     transition: all 0.3s ease;
-}
-
-#status {
+  }
+  
+  #status {
     color: var(--status-text);
     font-weight: 500;
     font-size: 1rem;
-}
-
-#fen, #pgn, #game-id {
+  }
+  
+  #fen, #pgn, #game-id {
     color: var(--fen-text);
     font-size: 0.9rem;
     word-break: break-all;
-}
-
-/* 
-**************************************************************
-* FEN and PGN Container shared styles
-**************************************************************
-*/
-
-.fen-container, .pgn-container, .game-id-container{
+  }
+  
+  /* Shared container styles for FEN, PGN, and Game ID */
+  .fen-container, .pgn-container, .game-id-container {
     position: relative;
     width: 100%;
-}
-
-/* 
-**************************************************************
-* Copy Button shared styles
-**************************************************************
-*/
-
-.copy-btn {
+  }
+  
+  /* 
+  **************************************************************
+  * Copy Button Shared Styles
+  **************************************************************
+  */
+  .copy-btn {
     position: absolute;
     top: 0.5rem;
     right: 0.5rem;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem;         /* Adjust padding if necessary */
     background: var(--button-bg);
-    color: var(--button-text);
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.8rem;
     transition: all 0.2s ease;
-    opacity: 0;
-}
-
-/* 
-**************************************************************
-* Show copy button on container hover
-**************************************************************
-*/
-
-.fen-container:hover .copy-btn,
-.pgn-container:hover .copy-btn,
-.game-id-container:hover .copy-btn {
+    opacity: 0;              /* Hidden by default, shown on hover */
+    
+    /* Center the image inside the button */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Style for the image inside the copy button */
+  .copy-btn img.copy-icon {
+    width: 20px;             /* Adjust size as needed */
+    height: 20px;
+    display: block;
+  }
+  
+  /* Show copy button when hovering over its container */
+  .fen-container:hover .copy-btn,
+  .pgn-container:hover .copy-btn,
+  .game-id-container:hover .copy-btn {
     opacity: 1;
-}
-
-.copy-btn:hover {
+  }
+  
+  /* Hover effect for copy button */
+  .copy-btn:hover {
     background: var(--button-hover);
     transform: translateY(-1px);
-}
-
-/* 
-**************************************************************
-* Update responsive design
-**************************************************************
-*/
-
-@media (max-width: 768px) {
+  }
+  
+  /* Responsive design for copy buttons */
+  @media (max-width: 768px) {
     .copy-btn {
-        opacity: 1; /* Always visible on mobile */
-        font-size: 0.7rem;
-        padding: 0.4rem 0.8rem;
+      opacity: 1;          /* Always visible on mobile */
+      padding: 0.4rem;
     }
-}
+  }
+  
+  /* 
+  **************************************************************
+  * Piece Set Buttons (for reference)
+  **************************************************************
+  */
+  .pieceSet {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .pieceSet-btns {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+  
+  .pieceSet-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    background: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+  }
+  
+  .pieceSet-btn:hover {
+    background: var(--button-hover);
+    transform: translateY(-1px);
+  }
+  
+  .pieceSet-btn:active {
+    transform: scale(0.98);
+  }
+  
+  .pieceSet-btn.active {
+    background: var(--button-hover);
+    transform: scale(1.05);
+    border: 2px solid var(--active-border-color);
+  }
+  
+  .pieceSet-icon {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  
+  @media (max-width: 480px) {
+    .pieceSet-btn {
+      width: 60px;
+      height: 60px;
+    }
+  }
 
 /* 
 **************************************************************
