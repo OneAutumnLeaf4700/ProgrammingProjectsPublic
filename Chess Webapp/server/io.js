@@ -7,6 +7,9 @@ const { Chess } = require('./chess.js-0.13.4/chess.js-0.13.4/chess.js');
 // Game Lobbies
 // --------------------------------
 
+const gamePlayers = {}; // Maps gameId -> { white: socketId, black: socketId }
+
+
 module.exports = (io) => {
     
     
@@ -27,7 +30,11 @@ module.exports = (io) => {
 
     // Handle player assignment and send turn assignment notification to user
     async function getPlayerTeam(socket, userId, gameId) {
+        console.log('Getting player team');
+        console.log('User ID:', userId);
+        console.log('Game ID:', gameId);
         const team = await lobbyManager.getPlayerTeam(userId, gameId);
+        console.log('Player team:', team);
         socket.emit('teamAssignment', team);
     }
     
@@ -52,6 +59,18 @@ module.exports = (io) => {
         
         //Send the current players turn back to the client
         getCurrentTurn(socket, gameId);
+
+        //Sync Board
+        updatePlayerBoard(socket, gameId);
+
+        //Store Player in gamePlayers map
+        if (!gamePlayers[gameId]) {
+            gamePlayers[gameId] = {};
+        }
+
+        const team = await lobbyManager.getPlayerTeam(userId, gameId);
+        gamePlayers[gameId][team] = socket.id;
+
     }
 
     // Make the move on the remaining client sides
@@ -86,9 +105,13 @@ module.exports = (io) => {
         
         
         socket.on('userConnected', (userId, gameId) => {
-            // Handle user reconnection (sync board, handle player assignment, etc.)
-            handleConnection(socket, userId, gameId);
+            if (gamePlayers[gameId] && (gamePlayers[gameId].white === socket.id || gamePlayers[gameId].black === socket.id)) {
+                console.log(`Player ${userId} reconnected to game ${gameId}`);
+            } else {
+                handleConnection(socket, userId, gameId);
+            }
         });
+        
 
         // Creating a new multiplayer game
         socket.on('newMultiplayerGameRequested', async (userId) => {
@@ -123,6 +146,11 @@ module.exports = (io) => {
             syncBoard(socket, gameId);
         });
 
+        //Request Board Sync
+        socket.on('requestBoardSync', (gameId) => {
+            syncBoard(socket, gameId);
+        });
+
         // Making a move
         socket.on('move', (gameId, gameState) => {
             handleMove(io, socket, gameId, gameState);
@@ -130,9 +158,27 @@ module.exports = (io) => {
 
         // Handle disconnecting player
         socket.on('disconnect', async () => {
-            const userId = socket.id;
-            await lobbyManager.handleDisconnect(userId);
+            let disconnectedPlayerId = socket.id;
+            
+            // Find which game the player was in
+            for (const gameId in gamePlayers) {
+                const players = gamePlayers[gameId];
+                
+                if (players.white === disconnectedPlayerId || players.black === disconnectedPlayerId) {
+                    const opponentId = players.white === disconnectedPlayerId ? players.black : players.white;
+        
+                    // Notify only the opponent, not all users
+                    if (opponentId) {
+                        io.to(opponentId).emit('opponentDisconnected');
+                    }
+        
+                    // Remove player from tracking
+                    delete gamePlayers[gameId];
+                    break;
+                }
+            }
         });
+        
     });
 };
 

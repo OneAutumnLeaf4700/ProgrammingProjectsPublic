@@ -81,12 +81,14 @@ async function getPlayerTeam(userId, gameId) {
     const game = await Game.findOne({ gameId });
     if (!game) {
       console.error(`Game with ID ${gameId} not found.`);
+      console.log(`Game with ID ${gameId} not found.`);
       return null;
     }
     const player = game.players.find(p => p.userId === userId.toString());
     return player ? player.color : null;
   } catch (error) {
     console.error(`Error fetching player color: ${error.message}`);
+    console.log(`Error fetching player color: ${error.message}`);
     return null;
   }
 }
@@ -138,18 +140,21 @@ async function getGame(gameId) {
 }
 
 // Handle disconnecting player
-async function handleDisconnect(userId) {
-  return;
+async function handleDisconnect(gameId) {
   try {
-    console.log("Handling Disconnect");
-    const game = await Game.findOneAndDelete({ 'players.userId': userId });
-    if (game) {
-      console.log(`Game ${game._id} deleted due to player disconnect`);
-    } else {
-      console.log(`No game found for user ID ${userId}`);
+    const game = await Game.findOne({ gameId });
+    if (!game) {
+      console.error(`Game with ID ${gameId} not found.`);
+      return null;
     }
+
+    // Remove the game from the database
+    await Game.deleteOne({ gameId });
+    console.log(`Game with ID ${gameId} has been deleted successfully.`);
+    return true;
   } catch (error) {
-    console.error(`Error handling disconnect for user ID ${userId}:`, error.message);
+    console.error(`Error deleting game: ${error.message}`);
+    throw error;
   }
 }
 

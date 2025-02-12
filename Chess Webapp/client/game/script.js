@@ -50,6 +50,7 @@ let $fen = $('#fen')
 let $pgn = $('#pgn')
 let $gameId = $('#game-id')
 let gameOver = false;
+let opponentDisconnected = false;
 let whiteSquareGrey = '#a9a9a9'
 let blackSquareGrey = '#696969'
 
@@ -76,6 +77,7 @@ let config = {
 
 // Preload sounds
 const sounds = {
+  initialSilence: new Audio('/audio/preload/blank.mp3'), // Absolute path for "preload" sound
   move: new Audio('/audio/lichess/move.mp3'),       // Absolute path for "move" sound
   capture: new Audio('/audio/lichess/capture.mp3'), // Absolute path for "capture" sound
   promotion: new Audio('/audio/chesscom/promote.webm'), // Absolute path for "promotion" sound
@@ -89,13 +91,12 @@ let board = Chessboard('myBoard', config);
 let game = new Chess();
 
 
-
-
 // --------------------------------
 // Game Setup Request
 // --------------------------------
 
 // Notify the server to start tracking board activity
+console.log(userId, gameId);
 socket.emit('userConnected', userId, gameId);
 
 
@@ -105,6 +106,7 @@ socket.emit('userConnected', userId, gameId);
 
 //Listen for team from the server
 socket.on('teamAssignment', (team) => {
+  console.log('Team assigning:', team);
   teamAssignment(team);
 });
 
@@ -143,6 +145,13 @@ socket.on('opponentMove', (move) => {
   updateStatus(); //Update the game status
 });
 
+// Listen for the game over disconnect event
+socket.on('gameOverDisconnect', () => {
+  gameOver = true;
+  opponentDisconnected = true;
+  updateStatus();
+});
+
 
 // -------------------------------
 // Socket Functions
@@ -158,6 +167,7 @@ function teamAssignment(team) {
 //Assign the user a turn
 function turnAssignment(currentTurn) {
   if (!myColor) {
+    console.log(myColor);
     console.error('Color not assigned yet');
     return;
   }
@@ -276,12 +286,7 @@ function changePieceSet(set) {
   updatePromotionModal(set);
 }
 
-// Function to set the userInteracted flag
-function setUserInteracted() {
-  userInteracted = true;
-  // Remove the event listeners after the first interaction to avoid unnecessary checks
-  document.removeEventListener('click', setUserInteracted);
-}
+
   
 function checkOutcome(game) {
   let outcome = '';
@@ -373,11 +378,12 @@ async function onDrop(source, target) {
     promotion: promotion
   });
 
-  //Update the board position after the move
-  board.position(game.fen());
-  
+
   // If the move is illegal, snap the piece back
   if (move === null) return 'snapback';
+
+  //Update the board position after the move
+  board.position(game.fen());
 
   //Play corresponding sound
   playSound(move);
@@ -411,6 +417,11 @@ function updateStatus () {
   var moveColor = 'White'
   if (game.turn() === 'b') {
     moveColor = 'Black'
+  }
+
+  if (gameOver && opponentDisconnected) {
+    status = 'Opponent disconnected, you win!'
+    openGameEndPopup(status);
   }
 
   // checkmate?
@@ -515,14 +526,6 @@ function onMouseoutSquare (square, piece) {
 // Event Listeners
 //---------------------------
 
-// Set the flag when the user clicks or moves the mouse
-document.addEventListener('click', setUserInteracted);
-
-//Sync board on reconnection
-window.addEventListener('load', () => {
-  socket.emit('requestBoardSync');
-});
-
 // Call loadTheme when page loads
 document.addEventListener('DOMContentLoaded', loadTheme);
 
@@ -554,6 +557,14 @@ document.getElementById('darkTheme').addEventListener('click', () => {
 document.addEventListener('DOMContentLoaded', () => {
   const savedTheme = localStorage.getItem('theme');
   updateCopyButtonImage(savedTheme === 'dark' ? 'dark' : 'light');
+});
+
+//Play sound on first interaction to unlock future sound playback
+document.addEventListener('click', function playSoundOnce() {
+  const audio = sounds.initialSilence;
+  audio.play().catch(error => console.log("Audio playback blocked:", error));
+
+  document.removeEventListener('click', playSoundOnce);
 });
 
 // FEN copy functionality
@@ -707,77 +718,79 @@ function closeGameEndPopup() {
 function openPromotionModal() {
   return new Promise((resolve, reject) => {
     const modal = document.getElementById("promote-modal");
-    const modalContent = document.getElementById("promote-modal-content"); // Ensure this exists in HTML
+    const overlay = document.getElementById("modal-overlay");
+    
+    // Show both the overlay and the modal
+    overlay.style.display = "block";
+    modal.style.display = "flex";  // Use "flex" to match the modal's CSS
 
-    // Show the modal
-    modal.style.display = "block";
-    modal.classList.add("show");
     isPromotionModalOpen = true;
 
-    // Disable interactions with the background
-    document.body.style.pointerEvents = "none"; // Blocks clicks outside
-    document.body.style.overflow = "hidden"; // Prevent scrolling
-
-    // Enable interactions inside the modal
-    modalContent.style.pointerEvents = "auto"; 
-
-    // Store the resolve and reject functions globally
+    // Store the promise callbacks globally
     window.promotionResolve = resolve;
     window.promotionReject = reject;
 
-    // Add event listener to close the modal if the user presses Escape
+    // Listen for Escape key to allow cancelation
     document.addEventListener("keydown", handleEscapeKeyForPromotionModal, { once: true });
   });
 }
 
-
-// Function to handle pressing the Escape key
+/**
+ * Handler for the Escape key that cancels the promotion if the modal is open.
+ */
 function handleEscapeKeyForPromotionModal(event) {
-  // If the Escape key is pressed and no promotion piece has been selected, reject the promotion
   if (event.key === 'Escape' && isPromotionModalOpen) {
     closePromotionModal('cancel');
   }
 }
 
-// Function to close the promotion modal
+/**
+ * Closes the promotion modal. If canceled, rejects the promise.
+ */
 function closePromotionModal(reason) {
-  // Close the modal
-  document.getElementById('promote-modal').style.display = 'none';
+  const modal = document.getElementById('promote-modal');
+  const overlay = document.getElementById('modal-overlay');
+  
+  // Hide the modal and overlay
+  modal.style.display = 'none';
+  overlay.style.display = 'none';
+  
+  isPromotionModalOpen = false;
 
-  // Set the flag to false
-  isPromotionModalOpen = false; // Correctly set the flag to false
-
-  // Restore interactions
-  document.body.style.pointerEvents = "auto"; // Re-enable clicks
-  document.body.style.overflow = "auto"; // Restore scrolling
-
-  // Reject or resolve the promise if applicable
+  // If the modal was canceled, reject the promise
   if (reason === 'cancel' && typeof window.promotionReject === 'function') {
     window.promotionReject(reason);
-    window.promotionReject = null; // Clear the reject function after use
+    window.promotionReject = null;
   }
-
-  // Remove event listeners to avoid memory leaks
+  
+  // Clean up the Escape key listener
   document.removeEventListener('keydown', handleEscapeKeyForPromotionModal);
 }
 
-// Function to handle the promotion choice (user clicks a button)
+/**
+ * Handles the user's promotion selection.
+ */
 function selectPromotion(piece) {
-  // Close the modal
-  document.getElementById('promote-modal').style.display = 'none';
-
-  // Set the flag to false
-  isPromotionModalOpen = false; // Correctly set the flag to false
-
-  // Resolve the promise with the selected promotion piece (q, r, b, n)
+  const modal = document.getElementById('promote-modal');
+  const overlay = document.getElementById('modal-overlay');
+  
+  // Hide the modal and overlay
+  modal.style.display = 'none';
+  overlay.style.display = 'none';
+  
+  isPromotionModalOpen = false;
+  
+  // Resolve the promise with the chosen piece
   if (typeof window.promotionResolve === 'function') {
     window.promotionResolve(piece);
-    window.promotionResolve = null; // Clear the resolve function after use
+    window.promotionResolve = null;
   }
-
-  // Remove event listeners to avoid memory leaks
+  
+  // Clean up the Escape key listener
   document.removeEventListener('keydown', handleEscapeKeyForPromotionModal);
 }
+
+
 
 // Update promotion modal with new piece set
 function updatePromotionModal(set) {
