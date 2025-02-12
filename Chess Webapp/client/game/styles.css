@@ -266,35 +266,66 @@ label {
 
 .pieceSet {
     display: flex;
-    gap: 1rem;
+    flex-direction: column;
+    align-items: center;
     margin-bottom: 2rem;
+  }
+  
+  /* Container for the buttons */
+  .pieceSet-btns {
+    display: flex;
+    gap: 1rem;
     justify-content: center;
-}
-
-.pieceSet button {
-    padding: 0.5rem 1rem;
+  }
+  
+  /* Styling for the buttons to ensure they are uniform in size */
+  .pieceSet-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;      /* Fixed width (adjust as needed) */
+    height: 80px;     /* Fixed height (adjust as needed) */
     background: var(--button-bg);
     color: var(--button-text);
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-weight: 500;
     transition: all 0.3s ease;
-}
-
-.pieceSet button:hover {
+    padding: 0;       /* Remove default padding */
+  }
+  
+  /* Hover effect: slight lift and background change */
+  .pieceSet-btn:hover {
     background: var(--button-hover);
     transform: translateY(-1px);
-}
-
-.pieceSet button:active {
+  }
+  
+  /* Active (click) state: subtle shrink effect */
+  .pieceSet-btn:active {
     transform: scale(0.98);
-}
-
-.pieceSet button.active {
+  }
+  
+  /* Selected state: highlight the active piece set */
+  .pieceSet-btn.active {
     background: var(--button-hover);
     transform: scale(1.05);
-}
+    border: 2px solid var(--active-border-color);
+  }
+  
+  /* Ensure the image inside the button scales properly */
+  .pieceSet-icon {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  
+  /* Responsive adjustments for smaller screens */
+  @media (max-width: 480px) {
+    .pieceSet-btn {
+      width: 60px;
+      height: 60px;
+    }
+  }
 
 /* 
 **************************************************************

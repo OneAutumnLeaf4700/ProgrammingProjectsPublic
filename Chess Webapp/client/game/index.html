@@ -22,32 +22,41 @@
     <div class="game-info">
         <label>Status:</label>
         <div id="status"></div>
+        
         <label>FEN:</label>
         <div class="fen-container">
             <div id="fen"></div>
             <button id="copyFen" class="copy-btn">Copy FEN</button>
         </div>
+
         <label>PGN:</label>
         <div class="pgn-container">
             <div id="pgn"></div>
             <button id="copyPgn" class="copy-btn">Copy PGN</button>
         </div>
+
         <label>Game ID:</label>
         <div class="game-id-container">
             <div id="game-id"></div>
             <button id="copyGameId" class="copy-btn">Copy Game ID</button>
         </div>
+
+        <label>Piece Sets:</label>
+        <div class="pieceSet">
+            <div class="pieceSet-btns">
+              <button class="pieceSet-btn" id="lichess-btn">
+                <img src="../img/chesspieces/lichess/wK.png" alt="King" class="pieceSet-icon">
+              </button>
+              <button class="pieceSet-btn" id="chesscom-btn">
+                <img src="../img/chesspieces/chesscom/wK.png" alt="King" class="pieceSet-icon">
+              </button>
+            </div>
+        </div>
     </div>
-    <div class = "pieceSet"> 
-        <button onclick="changePieceSet('lichess')" class= pieceSet-btn id="lichess-btn">
-            <img src="../img/chesspieces/lichess/wK.png" alt="King" class="pieceSet-icon">
-        </button>
-        <button onclick="changePieceSet('chesscom')" class= pieceSet-btn id="chesscom-btn">
-            <img src="../img/chesspieces/chesscom/wK.png" alt="King" class="pieceSet-icon">
-        </button>
-        
-        </button>
-    </div> 
+    
+
+
+      
 
     <!-- Scripts -->
     <script src="/socket.io/socket.io.js"></script>
