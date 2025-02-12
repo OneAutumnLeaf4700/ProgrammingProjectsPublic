@@ -60,10 +60,18 @@
             </div>
         </div>
     </div>
-    
 
+    <!-- Game End Popup -->
+    <div id="game-end-popup" class="popup">
+      <div id ="popup-content" class="popup-content">
+          <h2 id="game-result-text">Game Over</h2>
+          <div class="popup-buttons">
+              <button id="rematch-btn" class="popup-btn">Rematch</button>
+              <button id="exit-btn" class="popup-btn">Exit</button>
+          </div>
+      </div>
+    </div>
 
-      
 
     <!-- Scripts -->
     <script src="/socket.io/socket.io.js"></script>
@@ -76,24 +84,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <script src="/game/script.js"></script>
 
-    <!-- Promotion Modal -->
-    <div id="promote-modal" style="display: none;">
-        <h3>Promote to:</h3>
-        <div class="promotion-options">
-            <button onclick="selectPromotion('q')" class="promotion-btn" id="queen-btn">
-                <img src="../img/chesspieces/lichess/wQ.png" alt="Queen" class="promotion-icon">
-            </button>
-            <button onclick="selectPromotion('r')" class="promotion-btn" id="rook-btn">
-                <img src="../img/chesspieces/lichess/wR.png" alt="Rook" class="promotion-icon">
-            </button>
-            <button onclick="selectPromotion('b')" class="promotion-btn" id="bishop-btn">
-                <img src="../img/chesspieces/lichess/wB.png" alt="Bishop" class="promotion-icon">
-            </button>
-            <button onclick="selectPromotion('n')" class="promotion-btn" id="knight-btn">
-                <img src="../img/chesspieces/lichess/wN.png" alt="Night" class="promotion-icon">
-            </button>
-        </div>
-    </div>
+<!-- Promotion Modal -->
+<div id="promote-modal" style="display: none;">
+  <div id="promote-modal-content"> <!-- Add this wrapper -->
+      <h3>Promote to:</h3>
+      <div class="promotion-options">
+          <button onclick="selectPromotion('q')" class="promotion-btn" id="queen-btn">
+              <img src="../img/chesspieces/lichess/wQ.png" alt="Queen" class="promotion-icon">
+          </button>
+          <button onclick="selectPromotion('r')" class="promotion-btn" id="rook-btn">
+              <img src="../img/chesspieces/lichess/wR.png" alt="Rook" class="promotion-icon">
+          </button>
+          <button onclick="selectPromotion('b')" class="promotion-btn" id="bishop-btn">
+              <img src="../img/chesspieces/lichess/wB.png" alt="Bishop" class="promotion-icon">
+          </button>
+          <button onclick="selectPromotion('n')" class="promotion-btn" id="knight-btn">
+              <img src="../img/chesspieces/lichess/wN.png" alt="Knight" class="promotion-icon"> <!-- Fixed typo -->
+          </button>
+      </div>
+  </div>
+</div>
+
 
 </body>
 </html>

@@ -10,6 +10,14 @@ const path = window.location.pathname;
 const gameId = path.split('/')[2];
 const gameIdValue = document.getElementById('game-id');
 
+// Get popup elements
+const gameEndPopup = document.getElementById("game-end-popup");
+const gameEndResultText = document.getElementById("game-result-text");
+const gameEndPopupMessage = document.getElementById("game-end-message");
+const gameEndPopupRematchButton = document.getElementById("rematch-btn");
+const gameEndPopupExitButton = document.getElementById("exit-btn");
+
+
 // Get user ID
 const userId = localStorage.getItem('userId');
 if (!userId) {
@@ -33,6 +41,7 @@ if (gameId && gameIdValue) {
 let pieceSet = 'lichess';
 let userInteracted = false;
 let isPromotionModalOpen = false;
+let isGameEndPopupOpen = false;
 let myColor = null;
 let isTurn = null;
 let gameHasStarted = false;
@@ -155,7 +164,6 @@ function turnAssignment(currentTurn) {
   isTurn = (myColor === 'white' && currentTurn === 'w') || (myColor === 'black' && currentTurn === 'b');
 }
 
-
 //Notify change in turn 
 function notifyTurn(turn) {
   isTurn = (myColor === 'white' && turn === 'w') || (myColor === 'black' && turn === 'b');
@@ -196,7 +204,6 @@ function syncBoard(serverGameState) {
 function requestBoardSync() {
   socket.emit('requestBoardSync'); // Request a board sync
 }
-
 
 // Determine which sound to play
 function getSoundForMove(move) {
@@ -365,6 +372,9 @@ async function onDrop(source, target) {
     to: target,
     promotion: promotion
   });
+
+  //Update the board position after the move
+  board.position(game.fen());
   
   // If the move is illegal, snap the piece back
   if (move === null) return 'snapback';
@@ -406,11 +416,13 @@ function updateStatus () {
   // checkmate?
   if (game.in_checkmate()) {
     status = 'Game over, ' + moveColor + ' is in checkmate.'
+    openGameEndPopup(status);
   }
 
   // draw?
   else if (game.in_draw()) {
     status = 'Game over, drawn position'
+    openGameEndPopup(status);
   }
 
   // game still on
@@ -438,61 +450,66 @@ function updateStatus () {
 
 
 
-  // -------------------------------
-  // Highlight Legal Moves
-  // -------------------------------
-  
-  // Remove the grey squre highlights
-  function removeGreySquares() {
-    $('#myBoard .square-55d63').css('background', '');
+// -------------------------------
+// Highlight Legal Moves
+// -------------------------------
+
+// Remove the grey squre highlights
+function removeGreySquares() {
+  $('#myBoard .square-55d63').css('background', '');
+}
+
+// Highlight the possible moves for the selected piece
+function greySquare(square) {
+  let $square = $('#myBoard .square-' + square);
+  let background = whiteSquareGrey;
+  if ($square.hasClass('black-3c85d')) {
+    background = blackSquareGrey;
   }
-  
-  // Highlight the possible moves for the selected piece
-  function greySquare(square) {
-    let $square = $('#myBoard .square-' + square);
-    let background = whiteSquareGrey;
-    if ($square.hasClass('black-3c85d')) {
-      background = blackSquareGrey;
+  $square.css('background', background);
+}
+
+// Highlight the possible moves for the selected piece
+function onMouseoverSquare(square, piece) {
+  // Only proceed if it's the current player's turn
+  if (!isTurn || isPromotionModalOpen) return;
+
+  // Get the color of the piece (first character of the piece type)
+  if (piece === false) return;
+
+  let pieceColor = piece.charAt(0); // 'w' for white, 'b' for black
+
+  // Only highlight moves if the piece belongs to the current player
+  if ((myColor === 'white' && pieceColor === 'w') || (myColor === 'black' && pieceColor === 'b')) {
+    // Get the list of legal moves for this square
+    let moves = game.moves({
+        square: square,
+        verbose: true
+    });
+
+    // Exit if there are no legal moves available for this square
+    if (moves.length === 0) return;
+
+    // Highlight the square they moused over
+    greySquare(square);
+
+    // Highlight the possible squares for this piece
+    for (let i = 0; i < moves.length; i++) {
+        greySquare(moves[i].to);
     }
-    $square.css('background', background);
   }
-  
-  // Highlight the possible moves for the selected piece
-  function onMouseoverSquare(square, piece) {
-    // Only proceed if it's the current player's turn
-    if (!isTurn || isPromotionModalOpen) return;
-  
-    // Get the color of the piece (first character of the piece type)
-    if (piece === false) return;
-  
-    let pieceColor = piece.charAt(0); // 'w' for white, 'b' for black
-  
-    // Only highlight moves if the piece belongs to the current player
-    if ((myColor === 'white' && pieceColor === 'w') || (myColor === 'black' && pieceColor === 'b')) {
-      // Get the list of legal moves for this square
-      let moves = game.moves({
-          square: square,
-          verbose: true
-      });
-  
-      // Exit if there are no legal moves available for this square
-      if (moves.length === 0) return;
-  
-      // Highlight the square they moused over
-      greySquare(square);
-  
-      // Highlight the possible squares for this piece
-      for (let i = 0; i < moves.length; i++) {
-          greySquare(moves[i].to);
-      }
-    }
-  }
-  
-  // Remove the highlights of possible moves for the selected piece
-  function onMouseoutSquare (square, piece) {
-    removeGreySquares()
-  }
-  
+}
+
+// Remove the highlights of possible moves for the selected piece
+function onMouseoutSquare (square, piece) {
+  removeGreySquares()
+}
+
+
+
+
+
+
   
 //---------------------------
 // Event Listeners
@@ -510,64 +527,34 @@ window.addEventListener('load', () => {
 document.addEventListener('DOMContentLoaded', loadTheme);
 
 
-  
+
+
+
 
 // -------------------------------
-// Webpage Widget Functionality
+// Webpage Widget Event Listeners
 // -------------------------------
 
 // Theme Switching
 document.getElementById('lightTheme').addEventListener('click', () => {
-    document.body.removeAttribute('data-theme');
-    updateActiveThemeButton('lightTheme');
-    localStorage.setItem('theme', 'light');
-  });
+  document.body.removeAttribute('data-theme');
+  updateActiveThemeButton('lightTheme');
+  localStorage.setItem('theme', 'light');
+  updateCopyButtonImage('light');
+});
 
 document.getElementById('darkTheme').addEventListener('click', () => {
   document.body.setAttribute('data-theme', 'dark');
   updateActiveThemeButton('darkTheme');
   localStorage.setItem('theme', 'dark');
-});
-
-// Update copy button image based on the theme
-function updateCopyButtonImage(theme) {
-  const copyButtons = document.querySelectorAll('.copy-btn img');
-  const icon = theme === 'dark' ? icons.dark : icons.light;
-
-  copyButtons.forEach(button => {
-    button.src = icon;
-  });
-}
-
-// Call updateCopyButtonImage when the theme changes
-document.getElementById('lightTheme').addEventListener('click', () => {
-  updateCopyButtonImage('light');
-});
-
-document.getElementById('darkTheme').addEventListener('click', () => {
   updateCopyButtonImage('dark');
 });
 
-// Update the copy button image when the page loads
+// Load saved theme preference
 document.addEventListener('DOMContentLoaded', () => {
   const savedTheme = localStorage.getItem('theme');
   updateCopyButtonImage(savedTheme === 'dark' ? 'dark' : 'light');
 });
-function updateActiveThemeButton(activeId) {
-  document.querySelectorAll('.theme-btn').forEach(btn => {
-      btn.classList.remove('active');
-  });
-  document.getElementById(activeId).classList.add('active');
-}
-
-// Load saved theme preference
-function loadTheme() {
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme === 'dark') {
-      document.body.setAttribute('data-theme', 'dark');
-      updateActiveThemeButton('darkTheme');
-  }
-}
 
 // FEN copy functionality
 document.getElementById('copyFen').addEventListener('click', () => {
@@ -621,28 +608,133 @@ document.getElementById('chesscom-btn').addEventListener('click', () => {
   changePieceSet('chesscom');
 });
 
-// Function to open the promotion modal and return the selected piece
-function openPromotionModal() {
+//Exit Game End Popup
+gameEndPopupExitButton.addEventListener("click", () => {
+  handleEscapeKeyForGameEndPopup({ key: 'Escape' });
+});
+
+
+
+
+
+
+
+
+// -------------------------------
+// Web Widget Event Listener Functions
+// -------------------------------
+
+// Update copy button image based on the theme
+function updateCopyButtonImage(theme) {
+  const copyButtons = document.querySelectorAll('.copy-btn img');
+  const icon = theme === 'dark' ? icons.dark : icons.light;
+
+  copyButtons.forEach(button => {
+    button.src = icon;
+  });
+}
+
+function updateActiveThemeButton(activeId) {
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+      btn.classList.remove('active');
+  });
+  document.getElementById(activeId).classList.add('active');
+}
+
+// Load saved theme preference
+function loadTheme() {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+      document.body.setAttribute('data-theme', 'dark');
+      updateActiveThemeButton('darkTheme');
+  }
+}
+
+// Function to show popup with animation
+function openGameEndPopup(result) {
   return new Promise((resolve, reject) => {
-    // Show the modal
-    document.getElementById('promote-modal').style.display = 'block';
+    const popup = document.getElementById("game-end-popup");
+    const popupContent = document.getElementById("popup-content");
+    const resultText = document.getElementById("game-result-text");
 
-    // Set the flag to true
-    isPromotionModalOpen = true;
+    // Set the result message
+    resultText.textContent = result;
 
-    // Store the resolve and reject functions in global variables
-    window.promotionResolve = resolve;
-    window.promotionReject = reject;
+    // Show popup with animation
+    popup.classList.add("show");
+    isGameEndPopupOpen = true; // Block interactions
 
-    // Add event listener to close the modal if the user presses Escape
-    document.addEventListener('keydown', handleEscapeKey, { once: true });
+    // Disable interactions with the background
+    document.body.style.pointerEvents = "none"; // Blocks clicking outside
+    document.body.style.overflow = "hidden"; // Prevent scrolling
+
+    // Enable interactions inside the popup
+    popupContent.style.pointerEvents = "auto";
+
+    // Store resolve and reject functions globally
+    window.gameEndResolve = resolve;
+    window.gameEndReject = reject;
+
+    // Allow closing with Escape key
+    document.addEventListener("keydown", handleEscapeKeyForGameEndPopup, { once: true });
   });
 }
 
 // Function to handle pressing the Escape key
-function handleEscapeKey(event) {
+function handleEscapeKeyForGameEndPopup(event) {
+  if (event.key === 'Escape' && isGameEndPopupOpen) {
+    closeGameEndPopup();
+  }
+}
+
+// Function to close the game end popup
+function closeGameEndPopup() {
+  const popup = document.getElementById("game-end-popup");
+  popup.classList.remove("show");
+
+  isGameEndPopupOpen = false;
+
+  // Restore interactions
+  document.body.style.pointerEvents = "auto"; // Re-enable clicks
+  document.body.style.overflow = "auto"; // Restore scrolling
+
+  // Resolve the promise
+  if (window.gameEndResolve) window.gameEndResolve();
+}
+
+
+// Function to open the promotion modal and return the selected piece
+function openPromotionModal() {
+  return new Promise((resolve, reject) => {
+    const modal = document.getElementById("promote-modal");
+    const modalContent = document.getElementById("promote-modal-content"); // Ensure this exists in HTML
+
+    // Show the modal
+    modal.style.display = "block";
+    modal.classList.add("show");
+    isPromotionModalOpen = true;
+
+    // Disable interactions with the background
+    document.body.style.pointerEvents = "none"; // Blocks clicks outside
+    document.body.style.overflow = "hidden"; // Prevent scrolling
+
+    // Enable interactions inside the modal
+    modalContent.style.pointerEvents = "auto"; 
+
+    // Store the resolve and reject functions globally
+    window.promotionResolve = resolve;
+    window.promotionReject = reject;
+
+    // Add event listener to close the modal if the user presses Escape
+    document.addEventListener("keydown", handleEscapeKeyForPromotionModal, { once: true });
+  });
+}
+
+
+// Function to handle pressing the Escape key
+function handleEscapeKeyForPromotionModal(event) {
   // If the Escape key is pressed and no promotion piece has been selected, reject the promotion
-  if (event.key === 'Escape') {
+  if (event.key === 'Escape' && isPromotionModalOpen) {
     closePromotionModal('cancel');
   }
 }
@@ -655,6 +747,10 @@ function closePromotionModal(reason) {
   // Set the flag to false
   isPromotionModalOpen = false; // Correctly set the flag to false
 
+  // Restore interactions
+  document.body.style.pointerEvents = "auto"; // Re-enable clicks
+  document.body.style.overflow = "auto"; // Restore scrolling
+
   // Reject or resolve the promise if applicable
   if (reason === 'cancel' && typeof window.promotionReject === 'function') {
     window.promotionReject(reason);
@@ -662,7 +758,7 @@ function closePromotionModal(reason) {
   }
 
   // Remove event listeners to avoid memory leaks
-  document.removeEventListener('keydown', handleEscapeKey);
+  document.removeEventListener('keydown', handleEscapeKeyForPromotionModal);
 }
 
 // Function to handle the promotion choice (user clicks a button)
@@ -680,7 +776,7 @@ function selectPromotion(piece) {
   }
 
   // Remove event listeners to avoid memory leaks
-  document.removeEventListener('keydown', handleEscapeKey);
+  document.removeEventListener('keydown', handleEscapeKeyForPromotionModal);
 }
 
 // Update promotion modal with new piece set
