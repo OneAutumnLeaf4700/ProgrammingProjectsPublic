@@ -86,6 +86,7 @@ const sounds = {
   checkmate: new Audio('/audio/chesscom/check.webm') // Absolute path for "checkmate" sound
 };
 
+
 // Create a chess board with configuration above
 let board = Chessboard('myBoard', config);
 let game = new Chess();
@@ -235,11 +236,6 @@ function getSoundForMove(move) {
 function playSound(move) {
   const sound = getSoundForMove(move);
 
-  if (!userInteracted) {
-    console.warn('User has not interacted with the page yet. Sound will not play.');
-    return;
-  }
-
   switch (sound) {
     case 'move':
       sounds.move.play().catch(error => console.error('Error playing move sound:', error));
@@ -303,14 +299,6 @@ function checkOutcome(game) {
   }
   return outcome;
 }
-
-
-
-
-
-
-
-
 
 // -------------------------------
 // Legal Moves
@@ -452,15 +440,6 @@ function updateStatus () {
   $gameId.html(gameId) // Update the game ID label
 }
 
-
-  
-  
-
-
-
-
-
-
 // -------------------------------
 // Highlight Legal Moves
 // -------------------------------
@@ -520,25 +499,16 @@ function onMouseoutSquare (square, piece) {
 
 
 
-
-  
-//---------------------------
-// Event Listeners
-//---------------------------
-
-// Call loadTheme when page loads
-document.addEventListener('DOMContentLoaded', loadTheme);
-
-
-
-
-
-
 // -------------------------------
 // Webpage Widget Event Listeners
 // -------------------------------
 
 // Theme Switching
+
+// Call loadTheme when page loads
+document.addEventListener('DOMContentLoaded', loadTheme);
+
+
 document.getElementById('lightTheme').addEventListener('click', () => {
   document.body.removeAttribute('data-theme');
   updateActiveThemeButton('lightTheme');
@@ -553,19 +523,12 @@ document.getElementById('darkTheme').addEventListener('click', () => {
   updateCopyButtonImage('dark');
 });
 
-// Load saved theme preference
-document.addEventListener('DOMContentLoaded', () => {
-  const savedTheme = localStorage.getItem('theme');
-  updateCopyButtonImage(savedTheme === 'dark' ? 'dark' : 'light');
-});
-
 //Play sound on first interaction to unlock future sound playback
-document.addEventListener('click', function playSoundOnce() {
-  const audio = sounds.initialSilence;
-  audio.play().catch(error => console.log("Audio playback blocked:", error));
+document.addEventListener('click', () => {
+  userInteracted = true;
+  sounds.initialSilence.play().catch(error => console.log("Audio playback blocked:", error));
+}, { once: true });
 
-  document.removeEventListener('click', playSoundOnce);
-});
 
 // FEN copy functionality
 document.getElementById('copyFen').addEventListener('click', () => {
