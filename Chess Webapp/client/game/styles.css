@@ -430,7 +430,7 @@ Game Outcome Popup
 /* Buttons */
 .popup-buttons {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   margin-top: 15px;
   align-items: center;
 }
@@ -440,6 +440,10 @@ Game Outcome Popup
   color: white;
   padding: 10px 15px;
   border: none;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  display: flex;
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
