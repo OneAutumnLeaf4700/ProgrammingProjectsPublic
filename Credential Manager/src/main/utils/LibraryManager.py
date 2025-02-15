@@ -1,4 +1,3 @@
-from utils.directoryManager import *
 import customtkinter as ctk
 import string
 import secrets
@@ -12,6 +11,3 @@ import time
 import os
 from tkinter import messagebox, filedialog, IntVar, StringVar
 from PIL import Image
-from utils.Encryption import *
-from data.database import *
-from data.user.WidgetStyles import *

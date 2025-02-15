@@ -1,5 +1,5 @@
-from main.utils.directoryManager import sqlite3, ctk
-from main.utils.directoryManager import *
+from utils.LibraryManager import sqlite3, ctk
+from utils.DirectoryManager import userSettingsDbPath
 
 # Global variables for styles and settings
 user_settings = {}
@@ -38,8 +38,6 @@ def setup_user_settings():
     # Initialize fonts
     initialize_fonts()
 
-    # Retrieve styles (if needed for additional widgets)
-    entry_style, label_style, button_style = get_styles()
 
 
 # Load user settings from the database

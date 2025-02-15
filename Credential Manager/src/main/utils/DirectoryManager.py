@@ -2,10 +2,12 @@ import os
 
 # Get the directory of the current file
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
-base_dir = os.path.dirname(current_file_dir)
-db_path = os.path.join(base_dir, "data")
+main_dir = os.path.dirname(current_file_dir)
+data_dir = os.path.join(main_dir, "..", "data")
+db_path = os.path.join(main_dir, "..", "data", "database")
 
-print(base_dir)
+print(main_dir)
+print(data_dir)
 print(db_path)
 
 # Define the paths relative to the base directory
