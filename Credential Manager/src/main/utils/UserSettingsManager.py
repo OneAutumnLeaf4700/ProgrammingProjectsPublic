@@ -1,5 +1,6 @@
 from utils.LibraryManager import sqlite3, ctk
 from utils.DirectoryManager import userSettingsDbPath
+from interface.Database import create_usersettings_db, create_masterpassword_db, create_allitems_db, create_favourites_db
 
 # Global variables for styles and settings
 user_settings = {}
@@ -27,8 +28,14 @@ frame_bg_color = "transparent"
 window_bg_color = "transparent"
 title_fg_color = "transparent"
 
-
+# Setup user settings
 def setup_user_settings():
+    # Create the databases
+    create_usersettings_db()
+    create_masterpassword_db()
+    create_allitems_db()
+    create_favourites_db()
+    
     # Load user settings
     load_user_settings()
 
@@ -37,8 +44,6 @@ def setup_user_settings():
 
     # Initialize fonts
     initialize_fonts()
-
-
 
 # Load user settings from the database
 def load_user_settings():
