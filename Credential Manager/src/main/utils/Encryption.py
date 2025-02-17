@@ -1,5 +1,4 @@
-from cryptography.fernet import Fernet
-import hashlib
+from utils.LibraryManager import Fernet, hashlib
 
 # Functions related to key management
 def create_key(path):
@@ -24,4 +23,6 @@ def decrypt_password(encrypted_password, key):
 
 # Function for hashing
 def hash_text(text):
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+    if isinstance(text, bytes):
+        return hashlib.sha256(text).hexdigest()  # Already bytes, no need to encode
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()  # Encode if it's a string

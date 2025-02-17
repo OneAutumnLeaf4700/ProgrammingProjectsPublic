@@ -1,11 +1,13 @@
-from utils.LibraryManager import ctk, sqlite3, messagebox
+from utils.LibraryManager import sqlite3, messagebox, json
 from utils.DirectoryManager import masterpasswordsDbPath, keyPath
 from utils.Encryption import load_key, create_key, encrypt_password, decrypt_password, hash_text
-from utils.UserSettingsManager import get_styles
+from utils.UserSettingsManager import get_styles, setup_user_settings
+
 
 
 class CredentialManager:
     def __init__(self, root):
+        setup_user_settings()
         self.root = root
         self.key = None
         self.password_file = None
@@ -33,8 +35,6 @@ class CredentialManager:
                 cursor = db.cursor()
                 cursor.execute("SELECT * FROM masterpassword")
                 count = cursor.fetchone()
-                self.run_login_screen()
-                return
                 if count:
                     self.run_login_screen()
                 else:
@@ -63,6 +63,9 @@ class CredentialManager:
         encrypted_pw = self.password_dict[website]["password"]
         return decrypt_password(encrypted_pw, self.key)
 
+    def encrypt_password(self, password):
+        return encrypt_password(password, self.key)
+
     def hash_text(self, text):
         return hash_text(text)
 
@@ -75,15 +78,19 @@ class CredentialManager:
         
         app = LoginScreen(self.root)
         app.run()
-    """
+
     def run_create_master_password(self):
+        from interface.CreateMasterPassword import CreateMasterPassword
+
         app = CreateMasterPassword(self.root)
         app.run()
 
     def run_mainvault(self):
+        from interface.MainVault import MainVault
+
         app = MainVault(self.root)
         app.run()
-    """
+
     def run(self):
         self.root.mainloop()
 

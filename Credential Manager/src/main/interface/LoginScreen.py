@@ -1,5 +1,4 @@
 from interface.CredentialManager import CredentialManager
-from interface.MainVault import MainVault
 from utils.LibraryManager import ctk, sqlite3
 from utils.DirectoryManager import masterpasswordsDbPath
 
