@@ -58,10 +58,11 @@ class LoginScreen(CredentialManager):
             self.password.delete(0, 'end')
 
     def destroy_and_create_mainvault(self):
+        from interface.MainVault import MainVault
+
         self.root.destroy()
-        print("Opening Main Vault")
-        #app = MainVault(ctk.CTk(), "All Items", "AllItems", "AllItems")
-        #app.run()
+        app = MainVault(ctk.CTk(), "All Items", "AllItems", "AllItems")
+        app.run()
 
     def cleanup_widgets(self):
         # Cleanup canvas elements if they exist

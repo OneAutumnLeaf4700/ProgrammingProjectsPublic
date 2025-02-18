@@ -12,7 +12,7 @@ font_name = None
 
 # Font variables (initialized later)
 text_type = None
-subtitle_type = None
+subtitle_type = None 
 title_type = None
 
 # Numerical Assignments

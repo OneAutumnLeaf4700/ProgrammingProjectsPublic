@@ -66,6 +66,9 @@ class CredentialManager:
     def encrypt_password(self, password):
         return encrypt_password(password, self.key)
 
+    def decrypt_password(self, encrypted_password):
+        return decrypt_password(encrypted_password, self.key)
+
     def hash_text(self, text):
         return hash_text(text)
 
