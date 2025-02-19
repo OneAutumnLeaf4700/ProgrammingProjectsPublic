@@ -79,7 +79,7 @@ class MainVault(CredentialManager):
         self.btn.grid(column=0, row=3, pady=10)
         self.btn = ctk.CTkButton(self.left_frame, text="Import/Export", command=self.run_filemanager, **button_style)
         self.btn.grid(column=0, row=4, pady=10)
-        self.btn = ctk.CTkButton(self.left_frame, text="Help", command=self.run_additional_information, **button_style)
+        self.btn = ctk.CTkButton(self.left_frame, text="Additional Information", command=self.run_additional_information, **button_style)
         self.btn.grid(column=0, row=5, pady=10)
 
     def initialize_right_frame(self, window_title, database, table):
