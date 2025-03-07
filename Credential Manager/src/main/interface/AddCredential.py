@@ -4,10 +4,11 @@ from utils.DirectoryManager import *
 from utils.UserSettingsManager import *
 
 
+
 class AddCredential(CredentialManager):
     _instance = None
 
-    def __new__(cls, database, table, credential_array):
+    def __new__(cls):
         if cls._instance is not None:
             cls.popup(cls._instance.root, "Add Credential window is already open")
             return cls._instance
@@ -35,23 +36,23 @@ class AddCredential(CredentialManager):
         self.root.resizable(False, False)
 
     def create_widgets(self):
-        heading1 = ctk.CTkLabel(self.root, text="Website:", **label_style)
+        heading1 = ctk.CTkLabel(self.root, text="Website:", **self.label_style)
         heading1.pack(pady=(20, 10))
-        self.website_entry = ctk.CTkEntry(self.root, width=300, **entry_style)
+        self.website_entry = ctk.CTkEntry(self.root, width=300, **self.entry_style)
         self.website_entry.pack(pady=(0, 10))
-        heading2 = ctk.CTkLabel(self.root, text="Username:", **label_style)
+        heading2 = ctk.CTkLabel(self.root, text="Username:", **self.label_style)
         heading2.pack(pady=(20, 10))
-        self.username_entry = ctk.CTkEntry(self.root, width=300, **entry_style)
+        self.username_entry = ctk.CTkEntry(self.root, width=300, **self.entry_style)
         self.username_entry.pack(pady=(0, 10))
-        heading3 = ctk.CTkLabel(self.root, text="Password:", **label_style)
+        heading3 = ctk.CTkLabel(self.root, text="Password:", **self.label_style)
         heading3.pack(pady=(20, 10))
-        self.password_entry = ctk.CTkEntry(self.root, width=300, show="*", **entry_style)
+        self.password_entry = ctk.CTkEntry(self.root, width=300, show="*", **self.entry_style)
         self.password_entry.pack(pady=(0, 10))
-        heading4 = ctk.CTkLabel(self.root, text="Confirm Password:", **label_style)
+        heading4 = ctk.CTkLabel(self.root, text="Confirm Password:", **self.label_style)
         heading4.pack(pady=(20, 10))
-        self.confirm_password_entry = ctk.CTkEntry(self.root, width=300, show="*", **entry_style)
+        self.confirm_password_entry = ctk.CTkEntry(self.root, width=300, show="*", **self.entry_style)
         self.confirm_password_entry.pack(pady=(0, 10))
-        add_button = ctk.CTkButton(self.root, text="Add", width=200, command=self.add_values, **button_style)
+        add_button = ctk.CTkButton(self.root, text="Add", width=200, command=self.add_values, **self.button_style)
         add_button.pack(pady=(20, 10))
 
     def is_master_password_present(self):

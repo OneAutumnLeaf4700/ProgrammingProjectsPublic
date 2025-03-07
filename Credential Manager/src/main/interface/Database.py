@@ -1,9 +1,7 @@
 from utils.LibraryManager import sqlite3
 from utils.DirectoryManager import masterpasswordsDbPath, allItemsDbPath, favouritesDbPath, userSettingsDbPath
 
-
-
-def create_masterpassword_db():
+def createMasterPasswordDb():
     with sqlite3.connect(masterpasswordsDbPath) as db:
         cursor = db.cursor()
         cursor.execute("""
@@ -13,7 +11,7 @@ def create_masterpassword_db():
         );
         """)
 
-def create_allitems_db():
+def createAllItemsDb():
     with sqlite3.connect(allItemsDbPath) as db:
         cursor = db.cursor()
         cursor.execute("""
@@ -25,7 +23,7 @@ def create_allitems_db():
         );
         """)
 
-def create_favourites_db():
+def createFavouritesDb():
     with sqlite3.connect(favouritesDbPath) as db:
         cursor = db.cursor()
         cursor.execute("""
@@ -37,7 +35,7 @@ def create_favourites_db():
         );
         """)
 
-def create_usersettings_db():
+def createUserSettingsDb():
     with sqlite3.connect(userSettingsDbPath) as db:
         cursor = db.cursor()
         cursor.execute("""

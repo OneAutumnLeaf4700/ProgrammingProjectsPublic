@@ -1,119 +1,100 @@
 from utils.LibraryManager import sqlite3, messagebox, json
 from utils.DirectoryManager import masterpasswordsDbPath, keyPath
-from utils.Encryption import load_key, create_key, encrypt_password, decrypt_password, hash_text
-from utils.UserSettingsManager import get_styles, setup_user_settings
-
-
+from utils.Encryption import loadKey, createKey, encryptPassword, decryptPassword, hashText
+from utils.UserSettingsManager import getStyles, setupUserSettings
 
 class CredentialManager:
     def __init__(self, root):
-        setup_user_settings()
+        setupUserSettings()
         self.root = root
         self.key = None
         self.password_file = None
         self.password_dict = {}
-        self.entry_style, self.label_style, self.button_style = get_styles()
-        self.load_or_create_key()
-        self.is_master_password_present()
+        self.entryStyle, self.labelStyle, self.buttonStyle = getStyles()
+        self.loadOrCreateKey()
+        self.isMasterPasswordPresent()
 
-    def load_or_create_key(self):
+    def loadOrCreateKey(self):
         with sqlite3.connect(masterpasswordsDbPath) as db:
             cursor = db.cursor()
             cursor.execute("SELECT * FROM masterpassword")
             stored_password = cursor.fetchone()
             if stored_password:
                 # Master password exists, load the encryption key
-                self.key = load_key(keyPath)
+                self.key = loadKey(keyPath)
             else:
                 # Master password doesn't exist, create a new key
-                create_key(keyPath)
-                self.key = load_key(keyPath)
+                createKey(keyPath)
+                self.key = loadKey(keyPath)
 
-    def is_master_password_present(self):
+    def isMasterPasswordPresent(self):
         try:
             with sqlite3.connect(masterpasswordsDbPath) as db:
                 cursor = db.cursor()
                 cursor.execute("SELECT * FROM masterpassword")
                 count = cursor.fetchone()
                 if count:
-                    self.run_login_screen()
+                    self.runLoginScreen()
                 else:
-                    self.run_create_master_password()
+                    self.runCreateMasterPassword()
         except sqlite3.Error as e:
             print(f"SQLite error: {e}")
 
-    def add_password(self, website, username, password):
-        encrypted_pw = encrypt_password(password, self.key)
+    def addPassword(self, website, username, password):
+        encrypted_pw = encryptPassword(password, self.key)
         self.password_dict[website] = {"username": username, "password": encrypted_pw}
         with open(self.password_file, "w") as file:
             json.dump(self.password_dict, file)
 
-    def delete_password(self, website):
+    def deletePassword(self, website):
         self.password_dict.pop(website)
         with open(self.password_file, "w") as file:
             json.dump(self.password_dict, file)
 
-    def update_password(self, website, username, password):
-        encrypted_pw = encrypt_password(password, self.key)
+    def updatePassword(self, website, username, password):
+        encrypted_pw = encryptPassword(password, self.key)
         self.password_dict[website] = {"username": username, "password": encrypted_pw}
         with open(self.password_file, "w") as file:
             json.dump(self.password_dict, file)
 
-    def get_password(self, website):
+    def getPassword(self, website):
         encrypted_pw = self.password_dict[website]["password"]
-        return decrypt_password(encrypted_pw, self.key)
+        return decryptPassword(encrypted_pw, self.key)
 
-    def encrypt_password(self, password):
-        return encrypt_password(password, self.key)
+    def encryptPassword(self, password):
+        return encryptPassword(password, self.key)
 
-    def decrypt_password(self, encrypted_password):
-        return decrypt_password(encrypted_password, self.key)
+    def decryptPassword(self, encrypted_password):
+        return decryptPassword(encrypted_password, self.key)
 
-    def hash_text(self, text):
-        return hash_text(text)
+    def hashText(self, text):
+        return hashText(text)
 
     @staticmethod
     def popup(parent, text):
         messagebox.showinfo("Popup Message", text, parent=parent)
 
-    def run_login_screen(self):
+    def destroyWidgets(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
+    def runLoginScreen(self):
         from interface.LoginScreen import LoginScreen
         
         app = LoginScreen(self.root)
         app.run()
 
-    def run_create_master_password(self):
+    def runCreateMasterPassword(self):
         from interface.CreateMasterPassword import CreateMasterPassword
 
         app = CreateMasterPassword(self.root)
         app.run()
 
-    def run_mainvault(self):
+    def runMainVault(self):
         from interface.MainVault import MainVault
 
-        app = MainVault(self.root)
+        app = MainVault(self.root, "All Items", "AllItems", "AllItems")
         app.run()
 
     def run(self):
         self.root.mainloop()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

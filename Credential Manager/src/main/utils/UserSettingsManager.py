@@ -1,117 +1,117 @@
 from utils.LibraryManager import sqlite3, ctk
 from utils.DirectoryManager import userSettingsDbPath
-from interface.Database import create_usersettings_db, create_masterpassword_db, create_allitems_db, create_favourites_db
+from interface.Database import createUserSettingsDb, createMasterPasswordDb, createAllItemsDb, createFavouritesDb
 
 # Global variables for styles and settings
-user_settings = {}
-program_theme = None
-widget_theme = None
-text_size = None
-text_color = None
-font_name = None
+userSettings = {}
+programTheme = None
+widgetTheme = None
+textSize = None
+textColor = None
+fontName = None
 
 # Font variables (initialized later)
-text_type = None
-subtitle_type = None 
-title_type = None
+textType = None
+subtitleType = None 
+titleType = None
 
 # Numerical Assignments
-subtitle_size = None
-title_size = None
-button_border_width = 2
+subtitleSize = None
+titleSize = None
+buttonBorderWidth = 2
 
 # Style variables
-txt_entry_fg_color = "black"
-button_fg_color = "#0f0f0f"
-button_border_color = "black"
-frame_bg_color = "transparent"
-window_bg_color = "transparent"
-title_fg_color = "transparent"
+txtEntryFgColor = "black"
+buttonFgColor = "#0f0f0f"
+buttonBorderColor = "black"
+frameBgColor = "transparent"
+windowBgColor = "transparent"
+titleFgColor = "transparent"
 
 # Setup user settings
-def setup_user_settings():
+def setupUserSettings():
     # Create the databases
-    create_usersettings_db()
-    create_masterpassword_db()
-    create_allitems_db()
-    create_favourites_db()
+    createUserSettingsDb()
+    createMasterPasswordDb()
+    createAllItemsDb()
+    createFavouritesDb()
     
     # Load user settings
-    load_user_settings()
+    loadUserSettings()
 
     # Apply settings
-    apply_settings()
+    applySettings()
 
     # Initialize fonts
-    initialize_fonts()
-
+    initializeFonts()
+    
 # Load user settings from the database
-def load_user_settings():
-    global user_settings, program_theme, widget_theme, text_size, text_color, font_name
+def loadUserSettings():
+    global userSettings, programTheme, widgetTheme, textSize, textColor, fontName
     
     with sqlite3.connect(userSettingsDbPath) as db:
         cursor = db.cursor()
         cursor.execute("SELECT * FROM settings WHERE id = 1;")
         row = cursor.fetchone()
         if row:
-            user_settings = {
+            userSettings = {
                 "theme": row[1],
-                "widget_theme": row[2],
-                "text_size": row[3],
-                "text_color": row[4],
-                "font_family": row[5]
+                "widgetTheme": row[2],
+                "textSize": row[3],
+                "textColor": row[4],
+                "fontFamily": row[5]
             }
         else:
-            user_settings = {
+            userSettings = {
                 "theme": "system",
-                "widget_theme": "dark-blue",
-                "text_size": 16,
-                "text_color": "White",
-                "font_family": "Arial"
+                "widgetTheme": "dark-blue",
+                "textSize": 16,
+                "textColor": "White",
+                "fontFamily": "Arial"
             }
 
-    program_theme = user_settings["theme"]
-    widget_theme = user_settings["widget_theme"]
-    text_size = user_settings["text_size"]
-    text_color = user_settings["text_color"]
-    font_name = user_settings["font_family"]
+    programTheme = userSettings["theme"]
+    widgetTheme = userSettings["widgetTheme"]
+    textSize = userSettings["textSize"]
+    textColor = userSettings["textColor"]
+    fontName = userSettings["fontFamily"]
 
     # Numerical Assignments
-    global subtitle_size, title_size
-    subtitle_size = text_size + 2
-    title_size = text_size + 4
+    global subtitleSize, titleSize
+    subtitleSize = textSize + 2
+    titleSize = textSize + 4
 
 # Initialize fonts
-def initialize_fonts():
-    global text_type, subtitle_type, title_type
-    text_type = ctk.CTkFont(family=font_name, size=text_size)
-    subtitle_type = ctk.CTkFont(family=font_name, size=subtitle_size)
-    title_type = ctk.CTkFont(family=font_name, size=title_size)
+def initializeFonts():
+    global textType, subtitleType, titleType
+    textType = ctk.CTkFont(family=fontName, size=textSize)
+    subtitleType = ctk.CTkFont(family=fontName, size=subtitleSize)
+    titleType = ctk.CTkFont(family=fontName, size=titleSize)
 
 # Apply settings
-def apply_settings():
-    ctk.set_appearance_mode(program_theme)
-    ctk.set_default_color_theme(widget_theme)
+def applySettings():
+    ctk.set_appearance_mode(programTheme)
+    ctk.set_default_color_theme(widgetTheme)
 
 # Define styles
-def get_styles():
+def getStyles():
     entry_style = {
-        "font": text_type,
-        "text_color": text_color,
-        "fg_color": txt_entry_fg_color
+        "font": textType,
+        "text_color": textColor,
+        "fg_color": txtEntryFgColor
     }
 
     label_style = {
-        "font": subtitle_type,
-        "text_color": text_color
+        "font": subtitleType,
+        "text_color": textColor
     }
 
     button_style = {
-        "font": subtitle_type,
-        "fg_color": button_fg_color,
-        "border_width": button_border_width,
-        "border_color": button_border_color,
-        "text_color": text_color
+        "font": subtitleType,
+        "fg_color": buttonFgColor,
+        "border_width": buttonBorderWidth,
+        "border_color": buttonBorderColor,
+        "text_color": textColor
     }
 
     return entry_style, label_style, button_style

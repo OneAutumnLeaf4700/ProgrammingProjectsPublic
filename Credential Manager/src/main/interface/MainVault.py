@@ -19,6 +19,7 @@ class MainVault(CredentialManager):
             cls._instance = super(MainVault, cls).__new__(cls)
         return cls._instance
 
+
     def __init__(self, root, title, database, table):
         if hasattr(self, 'initialized') and self.initialized:
             return
